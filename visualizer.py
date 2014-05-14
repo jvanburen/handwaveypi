@@ -61,6 +61,7 @@ class Visualizer:
                 pygame.display.flip()
                 
     def update(self):
+        """Gets a HUD object and returns it (preferably quickly)"""
         pass
 
     def display_image(self, blobs):
