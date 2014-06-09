@@ -12,7 +12,7 @@ def main(n=10):
 	for i in range(n):
 		print("-"*40)
 		print("run %d of %d"%(i+1,n))
-		frame = fq.get() 
+		frame = fq.pop() 
 		blobs = get_blobs(frame)
 		for blob in blobs:
 			print(blob)

@@ -32,6 +32,9 @@ class FrameQueue(Thread, Queue):
                                                resize=self.dims):
             stream.truncate()
             stream.seek(0)
+            if self.qsize() >= 2:
+                try: self.get(block=False)
+                except Empty: pass
             self.put(
                 yuv.BrightnessMap(stream.getvalue(), *self.dims))
             
