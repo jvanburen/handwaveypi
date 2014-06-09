@@ -1,0 +1,53 @@
+import bmap
+
+class ImageBlob:
+    def __init__(self, pixels, width, height):
+        from math import pi, sqrt
+        #scale pixels linearly to be in [-1, 1]
+        units_per_row = 2.0/height
+        units_per_column = 2.0/width
+        average_units_per_dim = units_per_row/2 + units_per_column/2
+        self.radius = average_units_per_dim * sqrt(len(pixels)/pi) #take the average to get a decent looking circle for a non-square image
+        coords = map(lambda i: (units_per_row * (i%width) - 1, units_per_column * (i//width)), pixels)
+        rows, cols = zip(*coords)
+        avg_row = sum(rows)/len(rows)
+        avg_col = sum(cols)/len(cols)
+        
+        self.center = (avg_col, avg_row) # (x, y) coordinate system
+         
+        
+	
+        center = (round(sum(cols)/len(rows)), round(sum(rows)/len(rows)))
+
+def get_blobs(self, threshold = 0.5):
+    bmap = self
+    FG = frozenset(i for i, v in enumerate(bmap) if v > threshold)
+    unvisited = frozenset(FG)
+    blobs = set()
+    while unvisited:
+        visited = set()
+        queue = deque()
+        s = next(iter(unvisited))
+        queue.append(s)
+        visited.add(s)
+        while queue:
+            t = queue.popleft()
+            for v in bmap.get_adj(t):
+                if v in visited \
+                   or v not in FG:
+                    continue
+                visited.add(v)
+                queue.append(v)
+        blobs.add(frozenset(visited))
+        unvisited ^= visited
+    #just a check
+    #it's worked every time i've tried it and it looks right so
+##        allblobs = set()
+##        for b in blobs:
+##            allblobs |= b
+##        assert allblobs == FG
+
+    return sorted(blobs, key=lambda x: len(x), reverse=True)
+
+
+
