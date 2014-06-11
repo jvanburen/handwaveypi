@@ -1,6 +1,5 @@
 from array import array
 import datetime
-import pygame
 from collections import deque
 from ctypes import *
 import sys
@@ -101,122 +100,6 @@ An object with a timestamp, raw data, and processed data
         for i, v in enumerate(self._data):
             v = int(v*0xff)
             pxarray[i%self._w, i//self._w] = (v,v,v)
-    def show_processed_preview(self, highlight=frozenset()):
-        "Use pygame to display a preview of the image"
-        w, h = self._w, self._h
-        window = pygame.display.set_mode((w,h))
-        window.fill(0x000000)
-        pxarray = pygame.PixelArray(window)
-    
-        for i, v in enumerate(self._data):
-            v = int(v*0xff)
-            if i in highlight:
-                pxarray[i%w, i//w] = (0xff, 0xff, 0x80)
-            else:
-                pxarray[i%w, i//w] = (v,v,v)
-            
-            
-        while pygame.event.poll().type != pygame.QUIT:
-            pygame.display.flip()
-            pygame.time.wait(20)
-        pygame.display.quit()
-
-    def show_unprocessed_HUD(self):
-        #first draw original image
-        w, h = self._w, self._h
-        window = pygame.display.set_mode((w,h))
-        window.fill(0x000000)
-        pxarray = pygame.PixelArray(window)
-    
-        for i, v in enumerate(self._unenhanced):
-            pxarray[i%w, i//w] = (v,v,v)
-
-        #now superimpose blob tracking on top
-        blobs = self.get_blobs()
-        if not blobs:
-            pass
-        elif len(blobs)==1:
-            self.draw_blob_circle(window, blobs[0])
-        else:
-            b0 = self.draw_blob_circle(window, blobs[0])
-            b1 = self.draw_blob_circle(window, blobs[1])
-            pygame.draw.aaline(window, (0x00, 0xFF, 0x00), b0, b1)
-            
-            
-            
-        while pygame.event.poll().type != pygame.QUIT:
-            pygame.display.flip()
-            pygame.time.wait(20)
-        pygame.display.quit()
-
-    def draw_unprocessed_HUD(self, surface):
-        #first draw original image
-        window = surface
-        w, h = self._w, self._h
-        window.fill(0x000000)
-        pxarray = pygame.PixelArray(window)
-    
-        for i, v in enumerate(self._unenhanced):
-            pxarray[i%w, i//w] = (v,v,v)
-
-        #now superimpose blob tracking on top
-        blobs = self.get_blobs()
-        if not blobs:
-            pass
-        elif len(blobs)==1:
-            self.draw_blob_circle(window, blobs[0])
-        else:
-            b0 = self.draw_blob_circle(window, blobs[0])
-            b1 = self.draw_blob_circle(window, blobs[1])
-            pygame.draw.aaline(window, (0x00, 0xFF, 0x00), b0, b1)
-
-            
-
-    def get_blobs(self, threshold= 0.5):
-        bmap = self
-        FG = frozenset(i for i, v in enumerate(bmap) if v >= threshold)
-        unvisited = frozenset(FG)
-        blobs = set()
-        while unvisited:
-            visited = set()
-            queue = deque()
-            s = next(iter(unvisited))
-            queue.append(s)
-            visited.add(s)
-            while queue:
-                t = queue.popleft()
-                for v in bmap.get_adj(t):
-                    if v in visited \
-                       or v not in FG:
-                        continue
-                    visited.add(v)
-                    queue.append(v)
-            blobs.add(frozenset(visited))
-            unvisited ^= visited
-
-        #just a check
-        #it's worked every time i've tried it and it looks right so
-##        allblobs = set()
-##        for b in blobs:
-##            allblobs |= b
-##        assert allblobs == FG
-
-        return sorted(blobs, key=lambda x: len(x), reverse=True)
-
-    def draw_blob_circle(self, surface, blob):
-        RED = 0xFF0000
-        from math import sqrt, pi
-        radius = round(sqrt(len(blob)/pi)) #find the approximate area
-        
-        coords = map(self.to_coord, blob)
-        rows, cols = zip(*coords)
-        #swap r,c to x,y for pygame
-        center = (round(sum(cols)/len(rows)), round(sum(rows)/len(rows)))
-        
-        pygame.draw.circle(surface, RED, center, 1, 0) #center point
-        pygame.draw.circle(surface, RED, center, radius, 1) #circle
-
-        return center
     
     @property
     def _dim(self):
@@ -239,5 +122,3 @@ An object with a timestamp, raw data, and processed data
     def __iter__(self):
         return iter(self._data)
 
-    
-        
