@@ -30,9 +30,9 @@ bmap_t * create_bmap(const byte * data, const size_t width, const size_t height,
     bmap *b = (bmap*) mem;
     b->width = width;
     b->height = height;
-    b->raw = (byte*) (mem + sizeof(bmap_t));    
+    b->raw = (byte*) (mem + sizeof(bmap_t));
     b->processed = (proc_t*) (b->raw + sizeof(byte)*width*height);
-    
+
     get_raw_data(width, height, b->raw, data);
     scale_data(
     #ifdef NORMALIZE
@@ -48,11 +48,11 @@ void free_bmap(bmap *data) {
 
 
 void get_raw_data(byte *out, const byte *in, const size_t width, const size_t height) {
-                  
+
     /// gets the brightness data from the yuv stream
     int line_width = (width+15)& ~15;
     int in_ptr=0, out_ptr=0;
-    
+
     for (int i = 0; i < height; ++i) {
         memcpy(out+out_ptr, in+in_ptr, width);
         in_ptr += line_width;
@@ -74,10 +74,10 @@ void scale_data(unsigned byte *data, const size_t len) {
     } else if (min == 0 && max == 255) {
         return;
     }
-    
+
     max -= min;
     float step = (float)PROC_T_MAX / (float)max;
-    
+
     for (int i = 1; i < len; ++i) {
         data[i] = (unsigned byte) (step * (data[i] - min);
     }
